@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#17140f">
+<title>Erindor: Legado dos Tronos</title>
+<style>
+:root{--bg:#15130f;--panel:#242017;--panel2:#30291d;--gold:#d9b568;--text:#f3ecdc;--muted:#b8ad97;--red:#b94c43;--green:#75a86e;--border:#59472a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Georgia,serif}
+header{text-align:center;padding:22px 10px;background:linear-gradient(#382a19,#15130f);border-bottom:1px solid var(--border)}
+h1{color:var(--gold);letter-spacing:4px;margin:0;font-size:clamp(27px,7vw,43px)}
+header p{color:var(--muted);font-size:11px;letter-spacing:2px}
+main{max-width:1050px;margin:auto;padding:12px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:15px;margin-bottom:12px}
+h2,h3{color:var(--gold);margin-top:0}
+p{line-height:1.5}
+.muted,small{color:var(--muted)}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.btn{padding:11px 12px;background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:6px;width:100%;margin:4px 0}
+.btn.primary{background:var(--gold);color:#21190c;font-weight:bold}
+.btn.danger{background:#572521}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+input,select{width:100%;padding:11px;margin:6px 0 12px;background:#17140f;color:var(--text);border:1px solid var(--border);border-radius:5px}
+label{color:var(--gold);font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.stat{background:var(--panel2);padding:10px;border-radius:6px;font-size:12px}
+.stat b{display:block;font-size:21px;color:var(--gold);margin-top:4px}
+nav{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:12px}
+nav button{background:var(--panel);color:var(--text);border:1px solid var(--border);padding:10px 3px;border-radius:5px;font-size:12px}
+nav button.active{border-color:var(--gold);color:var(--gold)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.entry{padding:10px 0;border-bottom:1px solid #ffffff14}
+.entry:last-child{border:0}
+.badge{display:inline-block;padding:4px 7px;margin:3px;border:1px solid var(--border);border-radius:4px;font-size:11px;color:var(--gold)}
+.bar{height:7px;background:#111;border-radius:5px;overflow:hidden;margin-top:5px}
+.bar div{height:100%;background:var(--gold)}
+.notice{padding:10px;border-left:3px solid var(--gold);background:#d9b56812;margin:8px 0}
+.hidden{display:none!important}
+.territory{padding:10px 5px;text-align:center;background:var(--panel2);border:1px solid var(--border);border-radius:6px;font-size:12px}
+.territory b{display:block;color:var(--gold);margin-bottom:5px}
+.log{max-height:330px;overflow:auto}
+footer{text-align:center;padding:22px;color:var(--muted);font-size:12px}
+@media(min-width:650px){.stats{grid-template-columns:repeat(4,1fr)}nav{grid-template-columns:repeat(6,1fr)}.grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header>
+<h1>ERINDOR</h1>
+<p>LEGADO DOS TRONOS</p>
+<div class="muted">Um mundo. Milhares de destinos. Nenhuma coroa está segura.</div>
+</header>
+<main>
+<section id="start" class="panel">
+<h2>O destino aguarda.</h2>
+<p>As antigas dinastias estão enfraquecidas. Reis disputam fronteiras, nobres conspiram em seus castelos e criaturas esquecidas despertam nas regiões selvagens.</p>
+<p>Você começa com pouco. Poderá conquistar riquezas, construir uma família, servir a um soberano, fundar uma casa nobre ou lutar para se tornar monarca.</p>
+<button class="btn primary" onclick="newCharacter()">⚔️ Criar personagem</button>
+<button class="btn" onclick="loadGame()">📜 Continuar campanha salva</button>
+<button class="btn" onclick="showHelp()">📖 Como jogar</button>
+<div id="startmessage" class="muted"></div>
+</section>
+
+<section id="creation" class="panel hidden">
+<h2>Forje seu destino</h2>
+<label>Nome</label><input id="cname" maxlength="35" placeholder="Nome do personagem">
+<label>Origem</label><select id="origin">
+<option value="povo">Filho do povo</option><option value="comerciante">Família mercante</option><option value="nobre">Casa nobre menor</option><option value="real">Sangue real exilado</option><option value="guerreiro">Família guerreira</option><option value="místico">Linhagem mística</option>
+</select>
+<label>Cultura</label><select id="culture">
+<option>Valedorn — cavalaria</option><option>Nordhavn — resistência</option><option>Sahra — comércio</option><option>Elyndor — natureza e magia</option><option>Drakhar — conquista</option>
+</select>
+<label>Personalidade</label><select id="trait">
+<option>Ambicioso</option><option>Honrado</option><option>Astuto</option><option>Carismático</option><option>Erudito</option><option>Implacável</option>
+</select>
+<label>Ambição</label><select id="goal">
+<option>Sobreviver e prosperar</option><option>Construir uma fortuna</option><option>Conquistar um título nobre</option><option>Conquistar uma coroa</option><option>Fundar um império</option><option>Criar uma dinastia lendária</option>
+</select>
+<label>Idade inicial</label><select id="age"><option>16</option><option selected>18</option><option>21</option><option>25</option><option>30</option></select>
+<button class="btn primary" onclick="createCharacter()">Começar minha história</button>
+<button class="btn" onclick="backHome()">Voltar</button>
+</section>
+
+<section id="game" class="hidden">
+<div id="summary" class="panel"></div>
+<nav id="nav">
+<button class="active" data-page="life">👤 Vida</button>
+<button data-page="family">❤️ Família</button>
+<button data-page="realm">🏰 Reino</button>
+<button data-page="world">🗺️ Mundo</button>
+<button data-page="army">⚔️ Exército</button>
+<button data-page="chronicle">📜 Crônicas</button>
+</nav>
+<div id="content"></div>
+</section>
+</main>
+<footer>ERINDOR · LEGADO DOS TRONOS · Uma campanha, infinitas possibilidades.</footer>
+
+<script>
+"use strict";
+const KEY="erindor_legado_v1";
+let G=null;
+const $=id=>document.getElementById(id);
+const rand=n=>Math.floor(Math.random()*n);
+const pick=a=>a[rand(a.length)];
+const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money=n=>Math.floor(n).toLocaleString("pt-BR");
+const titles=["Habitante","Aventureiro","Cavaleiro","Lorde","Conde","Duque","Rei","Imperador"];
+const regions=[
+{name:"Valedorn",ruler:"Casa Arvend",owner:"Casa Arvend",wealth:85,defense:50,pop:82000,kind:"Reino humano"},
+{name:"Nordhavn",ruler:"Casa Skall",owner:"Casa Skall",wealth:65,defense:75,pop:56000,kind:"Terras do norte"},
+{name:"Sahramar",ruler:"Casa Zahiri",owner:"Casa Zahiri",wealth:100,defense:45,pop:97000,kind:"Sultanato mercante"},
+{name:"Elyndor",ruler:"Casa Thalendir",owner:"Casa Thalendir",wealth:70,defense:55,pop:42000,kind:"Reino élfico"},
+{name:"Drakhar",ruler:"Casa Varkos",owner:"Casa Varkos",wealth:55,defense:90,pop:75000,kind:"Império militar"},
+{name:"Ilhas de Vesper",ruler:"Casa Maren",owner:"Casa Maren",wealth:90,defense:60,pop:31000,kind:"Confederação insular"},
+{name:"Cinzas de Morvath",ruler:"Sem soberano",owner:"Sem soberano",wealth:25,defense:25,pop:9000,kind:"Território disputado"},
+{name:"Bosque de Lúmen",ruler:"Círculo Verde",owner:"Círculo Verde",wealth:50,defense:40,pop:18000,kind:"Terras encantadas"},
+{name:"Montanhas de Kharzug",ruler:"Clãs de Ferro",owner:"Clãs de Ferro",wealth:60,defense:85,pop:26000,kind:"Domínio anão"}
+];
+const names=["Aldric","Elara","Maelor","Lyanna","Cedric","Isolde","Rowan","Seraphina","Darian","Mira","Kaelen","Freya","Lucan","Aurelia","Bastien","Thalia","Edric","Selene","Orin","Valeria","Gareth","Nerissa"];
+const surnames=["Arvend","Skall","Zahiri","Thalendir","Varkos","Maren","Dusk","Ravencrest","Ashford","Blackthorn","Stormborn","Ironwood"];
+function person(name,age,relation="Conhecido"){
+return {id:Math.random().toString(36).slice(2,10),name,age,relation,opinion:rand(61)+20,alive:true,married:false,children:[],loyalty:rand(50)+25,wealth:rand(1000)+100};
+}
+function newCharacter(){
+$("start").classList.add("hidden");$("creation").classList.remove("hidden");
+}
+function backHome(){$("creation").classList.add("hidden");$("start").classList.remove("hidden")}
+function showHelp(){
+$("startmessage").innerHTML="<div class='notice'><b>Como jogar</b><br>Escolha ações na aba Vida. Cada avanço de tempo equivale a um mês. Trabalhe para ganhar dinheiro, treine habilidades, conheça pessoas, case, tenha filhos, administre seu domínio e enfrente acontecimentos inesperados. Salve sua campanha antes de sair.</div>";
+}
+function createCharacter(){
+let name=$("cname").value.trim()||pick(names);
+let origin=$("origin").value;
+let bonus={povo:0,comerciante:800,nobre:500,real:1200,guerreiro:250,"místico":400}[origin]||0;
+G={
+version:1,month:1,year:1,age:+$("age").value,alive:true,ended:false,
+player:{name,origin,culture:$("culture").value,trait:$("trait").value,goal:$("goal").value},
+health:100,happiness:75,energy:100,reputation:10,influence:0,
+gold:300+bonus,food:100,wood:50,stone:30,
+skills:{combat:origin==="guerreiro"?25:10,diplomacy:origin==="nobre"||origin==="real"?20:10,trade:origin==="comerciante"?25:10,knowledge:origin==="místico"?25:10},
+title:origin==="real"?"Herdeiro exilado":origin==="nobre"?"Nobre menor":"Habitante",
+land:origin==="nobre"||origin==="real"?1:0,army:origin==="guerreiro"?15:0,
+married:false,spouse:null,children:[],friends:[],rivals:[],properties:[],
+realm:{name:name+" — Domínio",tax:10,stability:60,loyalty:55,buildings:[],laws:"Tradicionais",atWar:false},
+regions:JSON.parse(JSON.stringify(regions)),quests:[],log:[],events:0,
+flags:{},lastPage:"life"
+};
+if(origin==="nobre"||origin==="real")G.properties.push({name:"Solar ancestral",income:30});
+G.log.push("Ano 1, mês 1: "+name+" inicia sua jornada em Erindor.");
+G.log.push("O mundo aguarda. Seu destino ainda está por escrever.");
+$("creation").classList.add("hidden");$("game").classList.remove("hidden");
+render();save(false);
+}
+function log(s){G.log.unshift("Ano "+G.year+", mês "+G.month+": "+s);G.log=G.log.slice(0,120)}
+function save(show=true){
+if(!G)return;
+try{localStorage.setItem(KEY,JSON.stringify(G));if(show)log("A campanha foi salva neste navegador.");}
+catch(e){if(show)alert("Não foi possível salvar. Verifique o armazenamento do navegador.");}
+if(show)render();
+}
+function loadGame(){
+try{let raw=localStorage.getItem(KEY);if(!raw){$("startmessage").textContent="Nenhuma campanha salva neste navegador.";return}
+G=JSON.parse(raw);
+if(!G.regions)G.regions=JSON.parse(JSON.stringify(regions));
+if(!G.log)G.log=[];
+if(!G.realm)G.realm={name:"Domínio",tax:10,stability:60,loyalty:55,buildings:[],laws:"Tradicionais",atWar:false};
+if(!G.flags)G.flags={};
+$("start").classList.add("hidden");$("creation").classList.add("hidden");$("game").classList.remove("hidden");render();
+}catch(e){$("startmessage").textContent="O salvamento não pôde ser carregado."}
+}
+function endMonth(){
+if(!G.alive)return;
+G.month++;
+if(G.month>12){G.month=1;G.year++;G.age++;annualUpdate()}
+G.energy=clamp(G.energy+15,0,100);
+G.health=clamp(G.health+2,0,100);
+let income=G.land*20+G.properties.reduce((s,p)=>s+(p.income||0),0);
+G.gold+=income;
+G.gold-=Math.floor(G.army*.6);
+G.gold-=G.realm.buildings.length*3;
+G.realm.stability=clamp(G.realm.stability+(G.realm.loyalty-50)*.03,0,100);
+if(G.food>0)G.food--;
+if(G.food<0){G.health-=5;G.happiness-=5;log("A escassez de alimentos ameaça sua comunidade.")}
+if(G.health<=0){G.health=0;G.alive=false;G.ended=true;log(G.player.name+" morreu. Sua história chegou ao fim.");}
+if(G.age>=85&&rand(100)<8){G.health-=20;log("A idade avançada trouxe uma doença grave.");}
+if(rand(100)<23)randomEvent();
+if(G.married&&G.spouse&&G.spouse.alive&&G.spouse.opinion<20&&rand(100)<8){
+log(G.spouse.name+" demonstra descontentamento com o rumo da família.");
+}
+}
+function annualUpdate(){
+G.happiness=clamp(G.happiness+rand(11)-5,0,100);
+if(G.realm.stability<25&&rand(100)<25){G.gold=Math.max(0,G.gold-100);G.reputation-=3;log("Uma revolta popular prejudicou o tesouro e sua reputação.")}
+if(G.land>0){G.food+=15*G.land;G.gold+=G.land*30}
+for(let c of G.children){if(c.alive!==false)c.age++}
+for(let f of G.friends)if(f.alive!==false)f.age++;
+for(let p of G.regions){if(p.owner!=="Sem soberano"&&rand(100)<12)p.wealth=clamp(p.wealth+rand(9)-4,10,100)}
+}
+function randomEvent(){
+let events=[
+()=>{let n=rand(100)+40;G.gold+=n;log("Um mercador lhe pagou "+n+" moedas por um favor antigo.")},
+()=>{G.health-=8;log("Uma febre o deixou debilitado. Saúde -8.")},
+()=>{G.reputation+=3;G.influence+=2;log("Sua generosidade foi elogiada nas tavernas. Reputação +3.")},
+()=>{G.gold=Math.max(0,G.gold-60);log("Bandidos roubaram 60 moedas de seus pertences.")},
+()=>{G.happiness+=8;log("Uma festa trouxe alegria e fortaleceu suas amizades.")},
+()=>{G.skills.knowledge+=2;log("Um estudioso viajante compartilhou conhecimentos com você.")},
+()=>{if(G.army>0){G.army=Math.max(0,G.army-2);log("Desertores abandonaram suas tropas.")}else{G.gold+=25;log("Você encontrou uma bolsa com 25 moedas.")}},
+()=>{G.realm.stability=clamp(G.realm.stability+5,0,100);log("Uma disputa local foi resolvida pacificamente.")},
+()=>{if(G.spouse&&G.spouse.alive){G.spouse.opinion=clamp(G.spouse.opinion+8,0,100);log(G.spouse.name+" compartilhou um momento feliz com você.")}else{G.reputation++;log("Um viajante falou bem de você numa corte distante.")}}
+];
+pick(events)();
+}
+function act(action){
+if(!G.alive){alert("Esta vida terminou. Você pode carregar outro salvamento ou iniciar uma nova campanha.");return}
+if(G.energy<10&&["train","work","adventure","recruit"].includes(action)){alert("Você está exausto. Descanse ou avance o tempo.");return}
+switch(action){
+case"work":G.energy-=10;G.gold+=45+Math.floor(G.skills.trade/3);G.skills.trade++;G.happiness-=2;log("Você trabalhou e recebeu moedas pelo seu esforço.");break;
+case"train":G.energy-=18;G.skills.combat+=3;G.skills.knowledge++;G.health-=1;log("Você treinou corpo e mente.");break;
+case"study":G.energy-=12;G.skills.knowledge+=3;G.skills.diplomacy++;log("Seus estudos ampliaram sua compreensão do mundo.");break;
+case"social":G.energy-=8;G.reputation+=2;G.influence+=2;G.happiness+=3;log("Você participou de encontros sociais e ganhou influência.");break;
+case"rest":G.energy=100;G.health=clamp(G.health+10,0,100);G.happiness+=4;log("Você descansou e recuperou suas forças.");break;
+case"adventure":G.energy-=20;G.events++;if(rand(100)<55){let reward=rand(100)+40;G.gold+=reward;G.reputation+=2;log("Sua aventura foi bem-sucedida. Recompensa: "+reward+" moedas.")}else{G.health-=12;log("Uma aventura perigosa terminou com ferimentos.")}break;
+case"court":if(G.gold<50){alert("Você precisa de 50 moedas para viajar até uma corte.");return}G.gold-=50;G.influence+=5;G.skills.diplomacy+=2;G.reputation+=2;log("Você visitou uma corte e estabeleceu contatos políticos.");break;
+case"marry":marry();return;
+case"child":haveChild();return;
+case"recruit":if(G.gold<100){alert("Você precisa de 100 moedas para recrutar soldados.");return}G.gold-=100;G.army+=10;G.energy-=10;log("Dez soldados foram incorporados ao seu exército.");break;
+case"tax":if(G.land<1){alert("Você precisa possuir terras para arrecadar impostos.");return}let take=G.realm.tax*G.land*4;G.gold+=take;G.happiness-=Math.max(1,Math.floor(G.realm.tax/8));G.realm.stability-=Math.max(1,Math.floor(G.realm.tax/10));log("A cobrança de impostos arrecadou "+take+" moedas.");break;
+case"build":build();return;
+case"campaign":campaign();return;
+case"resttime":endMonth();log("O tempo avançou um mês.");break;
+}
+G.energy=clamp(G.energy,0,100);G.health=clamp(G.health,0,100);G.happiness=clamp(G.happiness,0,100);
+save(false);render();
+}
+function marry(){
+if(G.married){alert("Você já está casado. Um divórcio pode ser adicionado pela área de Família.");return}
+let candidates=G.friends.filter(f=>f.alive&&f.age>=16&&f.opinion>=35);
+if(!candidates.length){alert("Você ainda não conhece ninguém disposto a se casar. Faça amizades na aba Família.");return}
+let person=pick(candidates);
+if(!confirm("Propor casamento a "+person.name+"?"))return;
+G.married=true;G.spouse={...person,relation:"Cônjuge",opinion:clamp(person.opinion+15,0,100),loyalty:70};G.reputation+=3;G.gold=Math.max(0,G.gold-25);
+log("Você se casou com "+person.name+". Uma nova aliança familiar começa.");
+save(false);render();
+}
+function haveChild(){
+if(!G.married||!G.spouse){alert("Você precisa de um cônjuge para iniciar uma família nesta versão.");return}
+if(G.age<18||G.spouse.age<16){alert("Sua família ainda não está pronta para ter filhos.");return}
+if(!confirm("Tentar ter um filho com "+G.spouse.name+"?"))return;
+if(rand(100)<65){
+let c={id:Math.random().toString(36).slice(2,9),name:pick(names)+" "+pick(surnames),age:0,alive:true,health:100,loyalty:60,gender:pick(["Filha","Filho"])};
+G.children.push(c);G.happiness+=8;log("Nasceu "+c.gender.toLowerCase()+" na família: "+c.name+".");
+}else{log("Desta vez, vocês não tiveram filhos.")}
+save(false);render();
+}
+function build(){
+if(G.gold<150){alert("Construir exige pelo menos 150 moedas.");return}
+let options=[["Fazenda",150,10],["Mercado",200,18],["Quartel",250,5],["Biblioteca",220,8],["Fortaleza",400,12]];
+let list=options.map((b,i)=>(i+1)+". "+b[0]+" — "+b[1]+" moedas").join("\n");
+let choice=prompt("Escolha uma construção:\n"+list+"\nDigite o número:");
+let b=options[Number(choice)-1];if(!b)return;
+if(G.gold<b[1]){alert("Você não tem moedas suficientes.");return}
+G.gold-=b[1];G.realm.buildings.push({name:b[0],cost:b[1]});G.realm.stability=clamp(G.realm.stability+2,0,100);
+if(b[0]==="Fazenda")G.food+=30;
+if(b[0]==="Biblioteca")G.skills.knowledge+=3;
+if(b[0]==="Quartel")G.army+=5;
+if(b[0]==="Fortaleza")G.realm.stability+=5;
+log("Você construiu: "+b[0]+".");save(false);render();
+}
+function campaign(){
+let available=G.regions.filter(r=>r.owner!=="Você");
+let list=available.map((r,i)=>(i+1)+". "+r.name+" — defesa "+r.defense+" — "+r.owner).join("\n");
+let choice=prompt("Escolha um território para uma campanha militar:\n"+list+"\nDigite o número:");
+let target=available[Number(choice)-1];if(!target)return;
+if(G.army<10){alert("Você precisa de pelo menos 10 soldados.");return}
+if(!confirm("Marchar contra "+target.name+"? Uma derrota pode custar soldados e dinheiro."))return;
+let power=G.army+G.skills.combat*2+rand(35);
+let defense=target.defense+rand(45);
+if(power>defense){
+target.owner="Você";G.land++;G.reputation+=8;G.influence+=8;G.gold+=target.wealth*3;
+G.army=Math.max(0,G.army-Math.floor(rand(6)+2));G.realm.stability=clamp(G.realm.stability-5,0,100);
+log("Vitória! Você conquistou "+target.name+" e ampliou seu domínio.");
+}else{
+G.army=Math.max(0,G.army-Math.floor(rand(10)+5));G.gold=Math.max(0,G.gold-50);G.health-=8;G.reputation-=3;
+log("Derrota em "+target.name+". Seu exército recuou com perdas.");
+}
+endMonth();save(false);render();
+}
+function meetPerson(){
+if(G.energy<8){alert("Você precisa descansar antes de sair para conhecer pessoas.");return}
+G.energy-=8;
+let p=person(pick(names)+" "+pick(surnames),rand(35)+18);
+p.opinion=rand(35)+35;
+G.friends.push(p);G.reputation++;G.influence++;
+log("Você conheceu "+p.name+". A relação pode se desenvolver com o tempo.");
+save(false);render();
+}
+function interact(id,kind){
+let p=G.friends.find(x=>x.id===id);
+if(!p)return;
+if(kind==="talk"){p.opinion=clamp(p.opinion+rand(12)+4,0,100);G.happiness+=2;log("Você conversou com "+p.name+".")}
+if(kind==="gift"){if(G.gold<30){alert("Você precisa de 30 moedas para comprar o presente.");return}G.gold-=30;p.opinion=clamp(p.opinion+15,0,100);log("Você presenteou "+p.name+".")}
+if(kind==="rival"){p.opinion=clamp(p.opinion-25,0,100);G.rivals.push(p.name);log("Você criou uma rivalidade com "+p.name+".")}
+save(false);render();
+}
+function changeTax(){
+let n=Number(prompt("Defina a taxa de impostos entre 0 e 30:",G.realm.tax));
+if(!Number.isFinite(n)||n<0||n>30){alert("Escolha um número entre 0 e 30.");return}
+G.realm.tax=n;log("A taxa de impostos foi ajustada para "+n+"%.");save(false);render();
+}
+function changeLaw(){
+let choices=["Tradicionais","Comércio livre","Serviço militar obrigatório","Proteção dos camponeses","Privilégios da nobreza"];
+let n=prompt("Escolha uma lei:\n"+choices.map((x,i)=>(i+1)+". "+x).join("\n"));
+let law=choices[Number(n)-1];if(!law)return;
+G.realm.laws=law;
+if(law==="Comércio livre")G.skills.trade++;
+if(law==="Proteção dos camponeses")G.realm.loyalty=clamp(G.realm.loyalty+8,0,100);
+if(law==="Privilégios da nobreza")G.realm.loyalty=clamp(G.realm.loyalty-8,0,100);
+log("Nova política estabelecida: "+law+".");save(false);render();
+}
+function diplomacy(regionIndex){
+let r=G.regions[regionIndex];if(!r)return;
+if(r.owner==="Você"){alert("Este território já pertence a você.");return}
+let cost=100+r.defense*2;
+if(G.gold<cost){alert("Você precisa de "+cost+" moedas para tentar negociar uma aliança.");return}
+G.gold-=cost;
+let chance=G.skills.diplomacy+G.reputation+G.influence+rand(50);
+if(chance>r.defense+45){
+r.owner="Você";G.land++;G.realm.stability=clamp(G.realm.stability+3,0,100);
+log("A diplomacia garantiu o controle de "+r.name+".");
+}else{log("A negociação por "+r.name+" fracassou.")}
+save(false);render();
+}
+function pageLife(){return `
+<div class="panel"><h2>👤 Sua vida</h2>
+<p>Você é <b>${esc(G.player.name)}</b>, ${esc(G.title)}, com ${G.age} anos. Origem: ${esc(G.player.origin)}. Cultura: ${esc(G.player.culture)}.</p>
+<div class="stats">
+<div class="stat">❤️ Saúde<b>${G.health}</b><div class="bar"><div style="width:${G.health}%"></div></div></div>
+<div class="stat">😊 Felicidade<b>${G.happiness}</b><div class="bar"><div style="width:${G.happiness}%"></div></div></div>
+<div class="stat">⚡ Energia<b>${G.energy}</b><div class="bar"><div style="width:${G.energy}%"></div></div></div>
+<div class="stat">⭐ Reputação<b>${G.reputation}</b></div>
+</div></div>
+<div class="panel"><h3>Seus atributos</h3>
+${Object.entries(G.skills).map(([k,v])=>`<div class="entry">${({combat:"Combate",diplomacy:"Diplomacia",trade:"Comércio",knowledge:"Conhecimento"})[k]} <b class="gold">${v}</b><div class="bar"><div style="width:${clamp(v,0,100)}%"></div></div></div>`).join("")}
+<p>Ambição: <span class="gold">${esc(G.player.goal)}</span></p>
+<p>Influência política: <b>${G.influence}</b></p>
+</div>
+<div class="panel"><h3>Escolha sua ação</h3><div class="grid">
+<button class="btn" onclick="act('work')">💰 Trabalhar (+moedas)</button>
+<button class="btn" onclick="act('train')">⚔️ Treinar combate</button>
+<button class="btn" onclick="act('study')">📚 Estudar</button>
+<button class="btn" onclick="act('social')">🤝 Socializar</button>
+<button class="btn" onclick="act('adventure')">🧭 Aventurar-se</button>
+<button class="btn" onclick="act('court')">👑 Visitar a corte</button>
+<button class="btn" onclick="act('rest')">🛏️ Descansar</button>
+<button class="btn primary" onclick="act('resttime')">📅 Avançar um mês</button>
+</div></div>
+<div class="panel"><h3>Seus bens</h3>
+<div class="stats"><div class="stat">💰 Ouro<b>${money(G.gold)}</b></div><div class="stat">🌾 Alimentos<b>${money(G.food)}</b></div><div class="stat">🪵 Madeira<b>${money(G.wood)}</b></div><div class="stat">🪨 Pedra<b>${money(G.stone)}</b></div></div>
+<p>Renda mensal aproximada: ${money(G.land*20+G.properties.reduce((s,p)=>s+(p.income||0),0))} moedas antes das despesas.</p>
+</div>
+<div class="panel"><h3>Salvar e gerenciar</h3>
+<button class="btn primary" onclick="save(true);alert('Campanha salva!')">💾 Salvar campanha</button>
+<button class="btn" onclick="exportSave()">📤 Exportar salvamento</button>
+<button class="btn" onclick="importSave()">📥 Importar salvamento</button>
+<button class="btn danger" onclick="newLife()">Começar outra vida</button>
+</div>`}
+function pageFamily(){return `
+<div class="panel"><h2>❤️ Família e relações</h2>
+<p>Estado civil: <b>${G.married&&G.spouse? "Casado(a) com "+esc(G.spouse.name):"Solteiro(a)"}</b></p>
+${G.spouse?`<div class="notice"><b>${esc(G.spouse.name)}</b>, ${G.spouse.age} anos · Opinião sobre você: ${G.spouse.opinion}/100.<br>Lealdade: ${G.spouse.loyalty}/100.</div><button class="btn" onclick="divorce()">💔 Solicitar divórcio</button>`:""}
+<button class="btn primary" onclick="meetPerson()">🤝 Conhecer alguém</button>
+<button class="btn" onclick="act('marry')">💍 Propor casamento</button>
+<button class="btn" onclick="act('child')">👶 Tentar ter um filho</button>
+<h3>Filhos e herdeiros (${G.children.length})</h3>
+${G.children.length?G.children.map(c=>`<div class="entry">👑 <b>${esc(c.name)}</b><br>${c.age} anos · Lealdade ${c.loyalty}/100 ${c.alive===false?"· Falecido":""}</div>`).join(""):"<p class='muted'>Você ainda não tem filhos. Sua dinastia começa com suas escolhas.</p>"}
+</div>
+<div class="panel"><h3>Conhecidos e aliados</h3>
+${G.friends.length?G.friends.map(p=>`<div class="entry"><b>${esc(p.name)}</b> · ${p.age} anos<br><small>Opinião ${p.opinion}/100 · ${esc(p.relation)}</small>
+<button class="btn" onclick="interact('${p.id}','talk')">Conversar</button>
+<button class="btn" onclick="interact('${p.id}','gift')">Dar presente (30 moedas)</button>
+<button class="btn" onclick="interact('${p.id}','rival')">Criar rivalidade</button></div>`).join(""):"<p class='muted'>Conheça pessoas para construir alianças e encontrar um possível cônjuge.</p>"}
+</div>`}
+function divorce(){
+if(!G.married)return;
+if(!confirm("Confirmar o divórcio? A relação pode se deteriorar."))return;
+G.spouse.opinion=0;G.friends.push({...G.spouse,relation:"Ex-cônjuge"});log("Você se divorciou de "+G.spouse.name+". A antiga aliança chegou ao fim.");
+G.married=false;G.spouse=null;save(false);render();
+}
+function pageRealm(){return `
+<div class="panel"><h2>🏰 Administração do domínio</h2>
+<p>Seu domínio: <b>${esc(G.realm.name)}</b></p>
+<div class="stats">
+<div class="stat">Terras<b>${G.land}</b></div>
+<div class="stat">Estabilidade<b>${Math.floor(G.realm.stability)}%</b></div>
+<div class="stat">Lealdade popular<b>${Math.floor(G.realm.loyalty)}%</b></div>
+<div class="stat">Impostos<b>${G.realm.tax}%</b></div>
+</div>
+<p>Suas terras geram renda mensal e alimentos anuais. Tropas e edifícios custam moedas para manter.</p>
+<button class="btn" onclick="changeTax()">💰 Ajustar impostos</button>
+<button class="btn" onclick="changeLaw()">📜 Estabelecer uma lei</button>
+<button class="btn primary" onclick="build()">🏗️ Construir edifício</button>
+<h3>Edifícios</h3>
+${G.realm.buildings.length?G.realm.buildings.map(b=>`<div class="entry">🏛️ ${esc(b.name)}</div>`).join(""):"<p class='muted'>Nenhum edifício construído.</p>"}
+<h3>Propriedades</h3>
+${G.properties.length?G.properties.map(p=>`<div class="entry">🏠 ${esc(p.name)} · Renda ${p.income} moedas/mês</div>`).join(""):"<p class='muted'>Você ainda não possui propriedades privadas.</p>"}
+</div>`}
+function pageWorld(){return `
+<div class="panel"><h2>🗺️ O mundo conhecido</h2>
+<p>As terras de Erindor são governadas por casas rivais. Você pode tentar negociar o controle de territórios, investir sua influência ou preparar uma campanha militar.</p>
+<div class="grid">${G.regions.map((r,i)=>`<div class="territory"><b>${esc(r.name)}</b><small>${esc(r.kind)}</small><p>${esc(r.owner)}</p><small>Defesa ${r.defense} · Riqueza ${r.wealth}</small><button class="btn" onclick="diplomacy(${i})" ${r.owner==="Você"?"disabled":""}>🤝 Negociar (${100+r.defense*2})</button></div>`).join("")}</div>
+</div>
+<div class="panel"><h3>Casas e soberanos</h3>${G.regions.map(r=>`<div class="entry"><b>${esc(r.owner)}</b> — ${esc(r.name)}<br><small>${r.pop.toLocaleString("pt-BR")} habitantes</small></div>`).join("")}</div>`}
+function pageArmy(){return `
+<div class="panel"><h2>⚔️ Guerra e exército</h2>
+<div class="stats"><div class="stat">Soldados<b>${G.army}</b></div><div class="stat">Combate<b>${G.skills.combat}</b></div><div class="stat">Influência<b>${G.influence}</b></div><div class="stat">Tesouro<b>${money(G.gold)}</b></div></div>
+<p>Os soldados exigem manutenção mensal. Uma força maior e um bom treinamento aumentam suas chances, mas nenhuma campanha é garantida.</p>
+<button class="btn primary" onclick="act('recruit')">🛡️ Recrutar 10 soldados (100 moedas)</button>
+<button class="btn" onclick="act('train')">⚔️ Treinar o comandante</button>
+<button class="btn danger" onclick="campaign()">🚩 Iniciar campanha militar</button>
+<h3>Seu domínio</h3><p>${G.land} território(s) sob seu controle.</p>
+</div>`}
+function pageChronicle(){return `
+<div class="panel"><h2>📜 Crônicas de Erindor</h2>
+<p>Os acontecimentos de sua campanha ficam registrados aqui.</p>
+<div class="log">${G.log.map(t=>`<div class="entry">${esc(t)}</div>`).join("")}</div>
+<button class="btn primary" onclick="save(true);alert('Crônicas e campanha salvas!')">💾 Salvar campanha</button>
+</div>`}
+const pages={life:pageLife,family:pageFamily,realm:pageRealm,world:pageWorld,army:pageArmy,chronicle:pageChronicle};
+function render(page){
+if(!G)return;
+if(page)G.lastPage=page;
+$("summary").innerHTML=`
+<div class="row"><div><b class="gold">${esc(G.player.name)}</b><br><small>${esc(G.title)} · ${G.age} anos</small></div><div style="text-align:right"><b>Ano ${G.year}, mês ${G.month}</b><br><small>${G.married?"💍 Casado":"👤 Solteiro"} · ${G.land} terras</small></div></div>
+<div class="stats" style="margin-top:10px">
+<div class="stat">💰 Ouro<b>${money(G.gold)}</b></div>
+<div class="stat">❤️ Saúde<b>${G.health}</b></div>
+<div class="stat">⚔️ Tropas<b>${G.army}</b></div>
+<div class="stat">⭐ Reputação<b>${G.reputation}</b></div>
+</div>
+${!G.alive?'<div class="notice">Sua vida terminou. Consulte as crônicas ou inicie uma nova campanha.</div>':""}`;
+document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===G.lastPage));
+$("content").innerHTML=G.alive?pages[G.lastPage]():`<div class="panel"><h2>Fim de uma vida</h2><p>Seu personagem morreu aos ${G.age} anos. Seu legado permanece nas crônicas.</p><button class="btn primary" onclick="newLife()">Iniciar nova vida</button></div>`;
+}
+document.querySelectorAll("#nav button").forEach(b=>b.addEventListener("click",()=>render(b.dataset.page)));
+function newLife(){
+if(!confirm("Começar uma nova campanha? Salve a atual antes se quiser preservá-la."))return;
+G=null;$("game").classList.add("hidden");$("start").classList.remove("hidden");$("creation").classList.add("hidden");
+}
+function exportSave(){
+if(!G)return;
+let blob=new Blob([JSON.stringify(G)],{type:"application/json"});
+let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="erindor-campanha.json";a.click();URL.revokeObjectURL(a.href);
+}
+function importSave(){
+let input=document.createElement("input");input.type="file";input.accept=".json,application/json";
+input.onchange=async()=>{
+try{
+let text=await input.files[0].text();let data=JSON.parse(text);
+if(!data.player||!data.skills||!data.regions)throw Error("Arquivo inválido");
+G=data;save(false);render();alert("Campanha importada!");
+}catch(e){alert("Não foi possível importar esse arquivo.");}
+};
+input.click();
+}
+function showPage(page){render(page)}
+// Inicialização e recuperação de salvamento
+(function init(){
+try{
+let raw=localStorage.getItem(KEY);
+if(raw){let data=JSON.parse(raw);if(data&&data.player)$("startmessage").textContent="Existe uma campanha salva. Use “Continuar campanha salva” para retomá-la."}
+}catch(e){}
+})();
+</script>
+</body>
+</html>
